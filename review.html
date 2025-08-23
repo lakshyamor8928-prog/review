@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Festival Review</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: linear-gradient(to bottom, #fff5e1, #f5f0ff);
+    }
+    img.logo {
+      width: 150px;
+      margin: 20px;
+    }
+    form {
+      background: white;
+      padding: 20px;
+      margin: 20px auto;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      max-width: 450px;
+    }
+    .stars {
+      cursor: pointer;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: center;
+    }
+    .star {
+      font-size: 25px;
+      color: gray;
+      padding: 2px;
+    }
+    .star.active {
+      color: gold;
+    }
+    select, input, textarea {
+      margin: 10px 0;
+      padding: 8px;
+      width: 95%;
+    }
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      border: none;
+      background: green;
+      color: white;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: darkgreen;
+    }
+  </style>
+</head>
+<body>
+  <img src="logo.png" alt="Logo" class="logo">
+  <h1>Festival Review Form</h1>
+
+  <form id="reviewForm">
+    <input type="text" name="name" placeholder="Enter your name" required>
+
+    <select name="wing" required>
+      <option value="">Select Wing</option>
+      <option value="A">Wing A</option>
+      <option value="B">Wing B</option>
+    </select>
+
+    <select id="room" name="room" required>
+      <option value="">Select Room</option>
+    </select>
+
+    <select id="day" name="day" required>
+      <option value="">Select Day</option>
+      <option value="Day 1">Day 1</option>
+      <option value="Day 2">Day 2</option>
+      <option value="Day 3">Day 3</option>
+      <option value="Day 4">Day 4</option>
+      <option value="Day 5">Day 5</option>
+      <option value="Day 6">Day 6</option>
+    </select>
+
+    <p>Decoration</p>
+    <div class="stars" data-target="decoration"></div>
+    <input type="hidden" name="decoration" id="decorationStars">
+
+    <p>Management</p>
+    <div class="stars" data-target="management"></div>
+    <input type="hidden" name="management" id="managementStars">
+
+    <p>Overall Experience</p>
+    <div class="stars" data-target="experience"></div>
+    <input type="hidden" name="experience" id="experienceStars">
+
+    <p>Food</p>
+    <div class="stars" data-target="food"></div>
+    <input type="hidden" name="food" id="foodStars">
+
+    <p id="showSection">Shows</p>
+    <div class="stars" data-target="shows" id="showStarsContainer"></div>
+    <input type="hidden" name="shows" id="showsStars">
+
+    <textarea name="suggestions" placeholder="Any suggestions..."></textarea>
+
+    <button type="submit">Submit Review</button>
+  </form>
+
+  <script>
+    // ⭐ Star rating
+    document.querySelectorAll(".stars").forEach(container => {
+      const target = container.dataset.target;
+      for (let i = 1; i <= 5; i++) {
+        const star = document.createElement("span");
+        star.textContent = "★";
+        star.dataset.value = i;
+        star.className = "star";
+        star.addEventListener("click", () => {
+          document.getElementById(target + "Stars").value = i;
+          [...container.children].forEach((s, index) => {
+            s.classList.toggle("active", index < i);
+          });
+        });
+        container.appendChild(star);
+      }
+    });
+
+    // 🏠 Room dropdown
+    const roomSelect = document.getElementById("room");
+    for (let floor = 4; floor <= 23; floor++) {
+      let rooms = floor === 23 ? 2 : 3;
+      for (let r = 1; r <= rooms; r++) {
+        const roomNo = `${floor}0${r}`;
+        let opt = document.createElement("option");
+        opt.value = roomNo;
+        opt.textContent = "Room " + roomNo;
+        roomSelect.appendChild(opt);
+      }
+    }
+
+    // 🎭 Hide "Shows" on Day 1 & Day 6
+    const daySelect = document.getElementById("day");
+    const showSection = document.getElementById("showSection");
+    const showStarsContainer = document.getElementById("showStarsContainer");
+    daySelect.addEventListener("change", () => {
+      if (daySelect.value === "Day 1" || daySelect.value === "Day 6") {
+        showSection.style.display = "none";
+        showStarsContainer.style.display = "none";
+      } else {
+        showSection.style.display = "block";
+        showStarsContainer.style.display = "flex";
+      }
+    });
+
+    // 🚀 Submit to Apps Script
+    const scriptURL = "https://script.google.com/macros/s/AKfycbyZNc1Vx-pW7A4FXsjFtylrQVr0Z7VXVmTk-TMM2HQzbs9gtjC59pxY8nZEVNRem9SI/exec"; // paste deployed URL here
+    document.getElementById("reviewForm").addEventListener("submit", e => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      fetch(scriptURL, { method: "POST", body: formData })
+        .then(() => {
+          alert("Review Submitted!");
+          e.target.reset();
+        })
+        .catch(err => alert("Error: " + err.message));
+    });
+  </script>
+</body>
+</html>
